@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Plus, Pencil, Trash2, Tags } from 'lucide-react'
-import { FadeIn, AnimatedRow, AnimatedModal } from '@/components/animations'
+import { AnimatedRow, AnimatedModal } from '@/components/animations'
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([])
@@ -52,7 +52,6 @@ export default function CategoriesPage() {
   }
 
   return (
-    <FadeIn>
       <div>
         <div className="page-header">
           <div>
@@ -148,6 +147,5 @@ export default function CategoriesPage() {
           </AnimatedModal>
         )}
       </div>
-    </FadeIn>
   )
 }

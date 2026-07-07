@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api, formatCurrency } from '@/lib/api'
 import { Plus, Pencil, Trash2, Package } from 'lucide-react'
-import { FadeIn, AnimatedRow, AnimatedModal } from '@/components/animations'
+import { AnimatedRow, AnimatedModal } from '@/components/animations'
 
 export default function InventoryPage() {
   const [medicines, setMedicines] = useState<any[]>([])
@@ -102,7 +102,6 @@ export default function InventoryPage() {
   }
 
   return (
-    <FadeIn>
       <div>
         <div className="page-header">
           <div>
@@ -273,6 +272,5 @@ export default function InventoryPage() {
           </AnimatedModal>
         )}
       </div>
-    </FadeIn>
   )
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Plus, Pencil, Trash2, UsersIcon } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
-import { FadeIn, AnimatedRow, AnimatedModal } from '@/components/animations'
+import { AnimatedRow, AnimatedModal } from '@/components/animations'
 
 export default function UsersPage() {
   const { user } = useAuth()
@@ -85,7 +85,6 @@ export default function UsersPage() {
   }
 
   return (
-    <FadeIn>
       <div>
         <div className="page-header">
           <div>
@@ -207,6 +206,5 @@ export default function UsersPage() {
           </AnimatedModal>
         )}
       </div>
-    </FadeIn>
   )
 }

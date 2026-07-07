@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Sidebar from '@/components/sidebar'
 import Header from '@/components/header'
-import { motion, AnimatePresence } from 'framer-motion'
-import { usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
+import PageTransitionWrapper from '@/components/page-transition-wrapper'
 
 export default function DashboardLayout({
   children,
@@ -15,7 +15,6 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const pathname = usePathname()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
@@ -72,17 +71,9 @@ export default function DashboardLayout({
       >
         <Header />
         <main className="dashboard-main">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          <PageTransitionWrapper>
+            {children}
+          </PageTransitionWrapper>
         </main>
       </motion.div>
     </motion.div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api, formatDateTime } from '@/lib/api'
 import { ArrowLeftRight } from 'lucide-react'
-import { FadeIn, AnimatedRow } from '@/components/animations'
+import { AnimatedRow } from '@/components/animations'
 
 export default function MutationsPage() {
   const [mutations, setMutations] = useState<any[]>([])
@@ -52,7 +52,6 @@ export default function MutationsPage() {
   }
 
   return (
-    <FadeIn>
       <div>
         <div className="page-header">
           <div>
@@ -144,6 +143,5 @@ export default function MutationsPage() {
           </table>
         </div>
       </div>
-    </FadeIn>
   )
 }

@@ -24,7 +24,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import { FadeIn, StaggerContainer, StaggerItem, SlideUp, AnimatedCounter } from '@/components/animations'
+import { StaggerContainer, StaggerItem, SlideUp, AnimatedCounter } from '@/components/animations'
 
 const PIE_COLORS = ['#059669', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
 
@@ -88,14 +88,12 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <FadeIn>
         <div className="page-header">
           <div>
             <h1 className="page-header__title">Dashboard</h1>
             <p className="page-header__desc">Ringkasan performa apotek hari ini</p>
           </div>
         </div>
-      </FadeIn>
 
       {/* Stat Cards */}
       <StaggerContainer className="stat-grid">
