@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Plus, Pencil, Trash2, Tags } from 'lucide-react'
+import { FadeIn, AnimatedRow, AnimatedModal } from '@/components/animations'
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([])
@@ -51,75 +52,79 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div>
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Kategori Obat</h1>
-          <p className="page-header__desc">Kelola kategori untuk pengelompokan obat</p>
+    <FadeIn>
+      <div>
+        <div className="page-header">
+          <div>
+            <h1 className="page-header__title">Kategori Obat</h1>
+            <p className="page-header__desc">Kelola kategori untuk pengelompokan obat</p>
+          </div>
+          <button className="btn btn--primary" onClick={openAdd}>
+            <Plus size={18} /> Tambah Kategori
+          </button>
         </div>
-        <button className="btn btn--primary" onClick={openAdd}>
-          <Plus size={18} /> Tambah Kategori
-        </button>
-      </div>
 
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Nama Kategori</th>
-              <th>Deskripsi</th>
-              <th>Jumlah Obat</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <tr key={i}>
-                  {[1, 2, 3, 4].map((j) => (
-                    <td key={j}><div className="skeleton" style={{ height: 16, width: '70%' }} /></td>
-                  ))}
-                </tr>
-              ))
-            ) : categories.length === 0 ? (
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
               <tr>
-                <td colSpan={4}>
-                  <div className="empty-state">
-                    <Tags size={40} className="empty-state__icon" />
-                    <p className="empty-state__title">Belum ada kategori</p>
-                    <p className="empty-state__desc">Tambahkan kategori untuk mengelompokkan obat</p>
-                  </div>
-                </td>
+                <th>Nama Kategori</th>
+                <th>Deskripsi</th>
+                <th>Jumlah Obat</th>
+                <th>Aksi</th>
               </tr>
-            ) : (
-              categories.map((cat) => (
-                <tr key={cat.id}>
-                  <td style={{ fontWeight: 600 }}>{cat.name}</td>
-                  <td style={{ color: 'var(--text-secondary)' }}>{cat.description || '—'}</td>
-                  <td>
-                    <span className="badge badge--blue badge--lg">{cat.medicine_count} obat</span>
-                  </td>
-                  <td>
-                    <div className="table__actions">
-                      <button className="btn btn--ghost btn--icon" onClick={() => openEdit(cat)} title="Edit">
-                        <Pencil size={16} />
-                      </button>
-                      <button className="btn btn--ghost btn--icon" onClick={() => handleDelete(cat.id, cat.name)} title="Hapus"
-                        style={{ color: 'var(--danger)' }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {(() => {
+                if (loading) {
+                  return Array.from({ length: 3 }).map((_, i) => (
+                    <tr key={i}>
+                      {[1, 2, 3, 4].map((j) => (
+                        <td key={j}><div className="skeleton" style={{ height: 16, width: '70%' }} /></td>
+                      ))}
+                    </tr>
+                  ))
+                }
+                if (categories.length === 0) {
+                  return (
+                    <tr>
+                      <td colSpan={4}>
+                        <div className="empty-state">
+                          <Tags size={40} className="empty-state__icon" />
+                          <p className="empty-state__title">Belum ada kategori</p>
+                          <p className="empty-state__desc">Tambahkan kategori untuk mengelompokkan obat</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                }
+                return categories.map((cat, idx) => (
+                  <AnimatedRow key={cat.id} index={idx}>
+                    <td style={{ fontWeight: 600 }}>{cat.name}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{cat.description || '—'}</td>
+                    <td>
+                      <span className="badge badge--blue badge--lg">{cat.medicine_count} obat</span>
+                    </td>
+                    <td>
+                      <div className="table__actions">
+                        <button className="btn btn--ghost btn--icon" onClick={() => openEdit(cat)} title="Edit">
+                          <Pencil size={16} />
+                        </button>
+                        <button className="btn btn--ghost btn--icon" onClick={() => handleDelete(cat.id, cat.name)} title="Hapus"
+                          style={{ color: 'var(--danger)' }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </AnimatedRow>
+                ))
+              })()}
+            </tbody>
+          </table>
+        </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        {showModal && (
+          <AnimatedModal onClose={() => setShowModal(false)}>
             <div className="modal__header">
               <h3 className="modal__title">{editItem ? 'Edit Kategori' : 'Tambah Kategori'}</h3>
               <button className="btn btn--ghost btn--icon" onClick={() => setShowModal(false)}>✕</button>
@@ -140,9 +145,9 @@ export default function CategoriesPage() {
                 <button type="submit" className="btn btn--primary">{editItem ? 'Simpan' : 'Tambah'}</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-    </div>
+          </AnimatedModal>
+        )}
+      </div>
+    </FadeIn>
   )
 }

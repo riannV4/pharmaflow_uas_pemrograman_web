@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 
-const inter = Inter({
-  variable: "--font-geist-sans",
+const interTight = Inter_Tight({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} h-full antialiased`}>
+    <html lang="id" className={`${interTight.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <AuthProvider>{children}</AuthProvider>
       </body>

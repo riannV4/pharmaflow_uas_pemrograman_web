@@ -1,10 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { api, formatCurrency, formatDateTime } from '@/lib/api'
-import { Search, ShoppingCart, Trash2, Printer, Plus, Minus, CreditCard, ChevronRight } from 'lucide-react'
+import { useAuth } from '@/lib/auth-context'
+import { ShoppingCart, Trash2, Printer, Plus, Minus, CreditCard, ChevronRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function PosPage() {
+  const { user } = useAuth()
   const [search, setSearch] = useState('')
   const [medicines, setMedicines] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -13,9 +16,9 @@ export default function PosPage() {
   const [customerName, setCustomerName] = useState('Umum')
   const [paymentMethod, setPaymentMethod] = useState('cash')
   const [isCheckingOut, setIsCheckingOut] = useState(false)
-  
+
   const searchInputRef = useRef<HTMLInputElement>(null)
-  
+
   // Invoice state for printing
   const [invoice, setInvoice] = useState<any>(null)
 
@@ -28,7 +31,7 @@ export default function PosPage() {
     const timer = setTimeout(() => {
       if (search.length >= 2) searchMedicines()
       else if (search.length === 0) setMedicines([])
-    }, 200) // Fast 200ms debounce as per PRD "100ms latency" requirement
+    }, 200)
     return () => clearTimeout(timer)
   }, [search])
 
@@ -36,7 +39,6 @@ export default function PosPage() {
     setLoading(true)
     const res = await api(`/api/medicines?search=${encodeURIComponent(search)}`)
     if (res.success) {
-      // Filter out medicines with zero stock
       const available = (res.data as any[]).filter(m => m.stock_total > 0)
       setMedicines(available)
     }
@@ -45,7 +47,7 @@ export default function PosPage() {
 
   const addToCart = (med: any) => {
     const existingIndex = cart.findIndex(item => item.id === med.id)
-    
+
     if (existingIndex >= 0) {
       const newCart = [...cart]
       if (newCart[existingIndex].qty < med.stock_total) {
@@ -57,7 +59,7 @@ export default function PosPage() {
     } else {
       setCart([...cart, { ...med, qty: 1 }])
     }
-    setSearch('') // Reset search after adding
+    setSearch('')
     searchInputRef.current?.focus()
   }
 
@@ -96,7 +98,7 @@ export default function PosPage() {
     }
 
     const res = await api('/api/transactions', { method: 'POST', body: payload })
-    
+
     if (res.success) {
       setInvoice(res.data)
       setCart([])
@@ -120,7 +122,12 @@ export default function PosPage() {
   return (
     <div className="pos-layout">
       {/* Left side: Products search and list */}
-      <div className="pos-products">
+      <motion.div
+        className="pos-products"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <div style={{ marginBottom: '1.5rem' }}>
           <h2 className="page-header__title" style={{ fontSize: '1.25rem' }}>Kasir Kilat (POS)</h2>
           <p className="page-header__desc">Scan barcode atau cari nama obat (FEFO otomatis)</p>
@@ -140,187 +147,251 @@ export default function PosPage() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <div className="spinner" style={{ margin: '0 auto', borderColor: 'var(--primary-200)', borderTopColor: 'var(--primary)' }}></div>
-          </div>
+          <motion.div
+            style={{ textAlign: 'center', padding: '2rem' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <motion.div
+              className="spinner"
+              style={{ margin: '0 auto', borderColor: 'var(--primary-200)', borderTopColor: 'var(--primary)' }}
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+            />
+          </motion.div>
         ) : (
           <div className="pos-products-grid">
-            {medicines.map(med => (
-              <div key={med.id} className="pos-product-card" onClick={() => addToCart(med)}>
-                <div className="pos-product-card__icon">
-                  <Plus size={20} />
-                </div>
-                <div className="pos-product-card__info">
-                  <div className="pos-product-card__name">{med.name}</div>
-                  <div className="pos-product-card__meta">
-                    {med.code} • Stok: <strong style={{ color: 'var(--primary-700)' }}>{med.stock_total}</strong>
+            <AnimatePresence mode="popLayout">
+              {medicines.map(med => (
+                <motion.div
+                  key={med.id}
+                  className="pos-product-card"
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                  onClick={() => addToCart(med)}
+                >
+                  <div className="pos-product-card__icon">
+                    <Plus size={20} />
                   </div>
-                </div>
-                <div className="pos-product-card__price">
-                  {formatCurrency(Number(med.price_sell))}
-                </div>
-              </div>
-            ))}
-            
+                  <div className="pos-product-card__info">
+                    <div className="pos-product-card__name">{med.name}</div>
+                    <div className="pos-product-card__meta">
+                      {med.code} • Stok: <strong style={{ color: 'var(--primary-700)' }}>{med.stock_total}</strong>
+                    </div>
+                  </div>
+                  <div className="pos-product-card__price">
+                    {formatCurrency(Number(med.price_sell))}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
             {search.length > 0 && medicines.length === 0 && !loading && (
-              <div style={{ gridColumn: '1 / -1', padding: '2rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+              <motion.div
+                style={{ gridColumn: '1 / -1', padding: '2rem', textAlign: 'center', color: 'var(--text-tertiary)' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
                 Obat tidak ditemukan atau stok habis.
-              </div>
+              </motion.div>
             )}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Right side: Cart or Invoice */}
-      {invoice ? (
-        <div className="pos-cart" style={{ background: '#fff', border: '1px dashed var(--border)' }}>
-          <div style={{ padding: '2rem', flex: 1, overflowY: 'auto' }} className="invoice" id="printable-invoice">
-            <div className="invoice__header">
-              <h2 style={{ fontSize: '1.4rem' }}>Apotek PharmaFlow</h2>
-              <p>Jl. Sehat Selalu No. 99, Jakarta</p>
-              <p>Kasir: {invoice.transaction.user_id} {/* Should be username but user_id in this mockup */}</p>
-              <p>{formatDateTime(invoice.transaction.created_at)}</p>
-            </div>
-            
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>No. Invoice:</strong> {invoice.transaction.invoice_number}<br/>
-              <strong>Pelanggan:</strong> {invoice.transaction.customer_name}
-            </div>
+      <AnimatePresence mode="wait">
+        {invoice ? (
+          <motion.div
+            key="invoice"
+            className="pos-cart"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 40 }}
+            transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+            style={{ background: '#fff', border: '1px dashed var(--border)' }}
+          >
+            <div style={{ padding: '2rem', flex: 1, overflowY: 'auto' }} className="invoice" id="printable-invoice">
+              <div className="invoice__header">
+                <h2 style={{ fontSize: '1.4rem' }}>Apotek PharmaFlow</h2>
+                <p>Jl. Sehat Selalu No. 99, Jakarta</p>
+                <p>Kasir: {user?.name || '—'}</p>
+                <p>{formatDateTime(invoice.transaction.created_at)}</p>
+              </div>
 
-            <div className="invoice__divider"></div>
-            
-            {invoice.items.map((item: any, idx: number) => (
-              <div key={idx} style={{ marginBottom: '0.75rem' }}>
-                <div style={{ fontWeight: 600 }}>{item.medicine_name}</div>
-                <div className="invoice__row">
-                  <span>{item.quantity} x {formatCurrency(Number(item.price))}</span>
-                  <span>{formatCurrency(Number(item.subtotal))}</span>
-                </div>
-                {item.batchAllocations && item.batchAllocations.length > 0 && (
-                  <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.15rem' }}>
-                    [Batch FEFO: {item.batchAllocations.map((b: any) => `${b.batch_number}(${b.qty})`).join(', ')}]
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>No. Invoice:</strong> {invoice.transaction.invoice_number}<br />
+                <strong>Pelanggan:</strong> {invoice.transaction.customer_name}
+              </div>
+
+              <div className="invoice__divider"></div>
+
+              {invoice.items.map((item: any, idx: number) => (
+                <motion.div
+                  key={idx}
+                  style={{ marginBottom: '0.75rem' }}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05, duration: 0.3 }}
+                >
+                  <div style={{ fontWeight: 600 }}>{item.medicine_name}</div>
+                  <div className="invoice__row">
+                    <span>{item.quantity} x {formatCurrency(Number(item.price))}</span>
+                    <span>{formatCurrency(Number(item.subtotal))}</span>
                   </div>
-                )}
-              </div>
-            ))}
+                  {item.batchAllocations && item.batchAllocations.length > 0 && (
+                    <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.15rem' }}>
+                      [Batch FEFO: {item.batchAllocations.map((b: any) => `${b.batch_number}(${b.qty})`).join(', ')}]
+                    </div>
+                  )}
+                </motion.div>
+              ))}
 
-            <div className="invoice__divider"></div>
-            
-            <div className="invoice__row">
-              <span>Subtotal</span>
-              <span>{formatCurrency(Number(invoice.summary.subtotal))}</span>
-            </div>
-            <div className="invoice__row">
-              <span>Diskon</span>
-              <span>- {formatCurrency(Number(invoice.summary.discount))}</span>
-            </div>
-            
-            <div className="invoice__divider"></div>
-            
-            <div className="invoice__row invoice__total">
-              <span>Total Akhir</span>
-              <span>{formatCurrency(Number(invoice.summary.total))}</span>
-            </div>
-            <div className="invoice__row" style={{ marginTop: '0.5rem' }}>
-              <span>Metode Bayar</span>
-              <span style={{ textTransform: 'uppercase', fontWeight: 600 }}>{invoice.transaction.payment_method}</span>
-            </div>
+              <div className="invoice__divider"></div>
 
-            <div style={{ textAlign: 'center', marginTop: '3rem', fontWeight: 600 }}>
-              Terima Kasih & Semoga Lekas Sembuh!
-            </div>
-          </div>
-          
-          <div className="pos-cart__footer" style={{ display: 'flex', gap: '1rem', background: '#f8fafc' }}>
-             <button className="btn btn--secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={handlePrint}>
-              <Printer size={18} /> Cetak Struk
-            </button>
-            <button className="btn btn--primary" style={{ flex: 1, justifyContent: 'center' }} onClick={startNewTransaction}>
-              Transaksi Baru <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="pos-cart">
-          <div className="pos-cart__header">
-            <h3>🛒 Keranjang Belanja</h3>
-          </div>
-          
-          <div className="pos-cart__items">
-            {cart.length === 0 ? (
-              <div className="empty-state" style={{ height: '100%' }}>
-                <ShoppingCart size={48} className="empty-state__icon" style={{ opacity: 0.2 }} />
-                <p className="empty-state__desc">Belum ada obat yang ditambahkan</p>
-              </div>
-            ) : (
-              cart.map(item => (
-                <div key={item.id} className="pos-cart__item">
-                  <div className="pos-cart__item-info">
-                    <div className="pos-cart__item-name" title={item.name}>{item.name}</div>
-                    <div className="pos-cart__item-price">{formatCurrency(Number(item.price_sell))}</div>
-                  </div>
-                  <div className="pos-cart__item-qty">
-                    <button onClick={() => updateCartQty(item.id, -1)}><Minus size={14} /></button>
-                    <span>{item.qty}</span>
-                    <button onClick={() => updateCartQty(item.id, 1)}><Plus size={14} /></button>
-                  </div>
-                  <div className="pos-cart__item-subtotal">
-                    {formatCurrency(Number(item.price_sell) * item.qty)}
-                  </div>
-                  <button className="btn btn--ghost btn--icon" style={{ color: 'var(--danger)' }} onClick={() => removeFromCart(item.id)}>
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="pos-cart__footer">
-            <div className="pos-cart__summary">
-              <div className="discount-input">
-                <label>Nama Pelanggan:</label>
-                <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} />
-              </div>
-              <div className="discount-input">
-                <label>Metode Bayar:</label>
-                <select className="form-select" style={{ flex: 1, padding: '0.4rem 0.6rem' }} value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
-                  <option value="cash">Tunai (Cash)</option>
-                  <option value="debit">Debit Card</option>
-                  <option value="qris">QRIS / E-Wallet</option>
-                </select>
-              </div>
-              <div className="discount-input">
-                <label>Diskon (Rp):</label>
-                <input type="number" min="0" value={discount || ''} onChange={e => setDiscount(Number(e.target.value) || 0)} />
-              </div>
-
-              <div className="pos-cart__summary-row mt-2">
+              <div className="invoice__row">
                 <span>Subtotal</span>
-                <span>{formatCurrency(subtotal)}</span>
+                <span>{formatCurrency(Number(invoice.summary.subtotal))}</span>
               </div>
-              <div className="pos-cart__summary-row pos-cart__summary-row--total">
+              <div className="invoice__row">
+                <span>Diskon</span>
+                <span>- {formatCurrency(Number(invoice.summary.discount))}</span>
+              </div>
+
+              <div className="invoice__divider"></div>
+
+              <div className="invoice__row invoice__total">
                 <span>Total Akhir</span>
-                <span style={{ color: 'var(--primary-dark)' }}>{formatCurrency(netAmount)}</span>
+                <span>{formatCurrency(Number(invoice.summary.total))}</span>
+              </div>
+              <div className="invoice__row" style={{ marginTop: '0.5rem' }}>
+                <span>Metode Bayar</span>
+                <span style={{ textTransform: 'uppercase', fontWeight: 600 }}>{invoice.transaction.payment_method}</span>
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: '3rem', fontWeight: 600 }}>
+                Terima Kasih & Semoga Lekas Sembuh!
               </div>
             </div>
 
-            <button 
-              className="pos-cart__checkout-btn" 
-              disabled={cart.length === 0 || isCheckingOut}
-              onClick={handleCheckout}
-            >
-              {isCheckingOut ? (
-                <><div className="spinner" style={{ width: 16, height: 16 }}></div> Memproses...</>
+            <div className="pos-cart__footer" style={{ display: 'flex', gap: '1rem', background: '#f8fafc' }}>
+              <button className="btn btn--secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={handlePrint}>
+                <Printer size={18} /> Cetak Struk
+              </button>
+              <button className="btn btn--primary" style={{ flex: 1, justifyContent: 'center' }} onClick={startNewTransaction}>
+                Transaksi Baru <ChevronRight size={18} />
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="cart"
+            className="pos-cart"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 40 }}
+            transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <div className="pos-cart__header">
+              <h3>🛒 Keranjang Belanja</h3>
+            </div>
+
+            <div className="pos-cart__items">
+              {cart.length === 0 ? (
+                <div className="empty-state" style={{ height: '100%' }}>
+                  <ShoppingCart size={48} className="empty-state__icon" style={{ opacity: 0.2 }} />
+                  <p className="empty-state__desc">Belum ada obat yang ditambahkan</p>
+                </div>
               ) : (
-                <><CreditCard size={18} /> Selesaikan Pembayaran</>
+                <AnimatePresence>
+                  {cart.map(item => (
+                    <motion.div
+                      key={item.id}
+                      className="pos-cart__item"
+                      layout
+                      initial={{ opacity: 0, x: -20, height: 0 }}
+                      animate={{ opacity: 1, x: 0, height: 'auto' }}
+                      exit={{ opacity: 0, x: 20, height: 0 }}
+                      transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
+                      <div className="pos-cart__item-info">
+                        <div className="pos-cart__item-name" title={item.name}>{item.name}</div>
+                        <div className="pos-cart__item-price">{formatCurrency(Number(item.price_sell))}</div>
+                      </div>
+                      <div className="pos-cart__item-qty">
+                        <button onClick={() => updateCartQty(item.id, -1)}><Minus size={14} /></button>
+                        <span>{item.qty}</span>
+                        <button onClick={() => updateCartQty(item.id, 1)}><Plus size={14} /></button>
+                      </div>
+                      <div className="pos-cart__item-subtotal">
+                        {formatCurrency(Number(item.price_sell) * item.qty)}
+                      </div>
+                      <button className="btn btn--ghost btn--icon" style={{ color: 'var(--danger)' }} onClick={() => removeFromCart(item.id)}>
+                        <Trash2 size={16} />
+                      </button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               )}
-            </button>
-          </div>
-        </div>
-      )}
-      
+            </div>
+
+            <div className="pos-cart__footer">
+              <div className="pos-cart__summary">
+                <div className="discount-input">
+                  <label>Nama Pelanggan:</label>
+                  <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                </div>
+                <div className="discount-input">
+                  <label>Metode Bayar:</label>
+                  <select className="form-select" style={{ flex: 1, padding: '0.4rem 0.6rem' }} value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+                    <option value="cash">Tunai (Cash)</option>
+                    <option value="debit">Debit Card</option>
+                    <option value="qris">QRIS / E-Wallet</option>
+                  </select>
+                </div>
+                <div className="discount-input">
+                  <label>Diskon (Rp):</label>
+                  <input type="number" min="0" value={discount || ''} onChange={e => setDiscount(Number(e.target.value) || 0)} />
+                </div>
+
+                <div className="pos-cart__summary-row mt-2">
+                  <span>Subtotal</span>
+                  <span>{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="pos-cart__summary-row pos-cart__summary-row--total">
+                  <span>Total Akhir</span>
+                  <span style={{ color: 'var(--primary-dark)' }}>{formatCurrency(netAmount)}</span>
+                </div>
+              </div>
+
+              <motion.button
+                className="pos-cart__checkout-btn"
+                disabled={cart.length === 0 || isCheckingOut}
+                onClick={handleCheckout}
+                whileHover={cart.length > 0 && !isCheckingOut ? { scale: 1.02 } : {}}
+                whileTap={cart.length > 0 && !isCheckingOut ? { scale: 0.98 } : {}}
+              >
+                {isCheckingOut ? (
+                  <><motion.div
+                    className="spinner"
+                    style={{ width: 16, height: 16 }}
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+                  /> Memproses...</>
+                ) : (
+                  <><CreditCard size={18} /> Selesaikan Pembayaran</>
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hidden print styles */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body * { visibility: hidden; }
           #printable-invoice, #printable-invoice * { visibility: visible; }

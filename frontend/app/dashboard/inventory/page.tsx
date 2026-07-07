@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { api, formatCurrency } from '@/lib/api'
-import { Plus, Pencil, Trash2, Search, Package } from 'lucide-react'
+import { Plus, Pencil, Trash2, Package } from 'lucide-react'
+import { FadeIn, AnimatedRow, AnimatedModal } from '@/components/animations'
 
 export default function InventoryPage() {
   const [medicines, setMedicines] = useState<any[]>([])
@@ -101,110 +102,114 @@ export default function InventoryPage() {
   }
 
   return (
-    <div>
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Manajemen Inventaris</h1>
-          <p className="page-header__desc">Kelola data obat apotek Anda</p>
+    <FadeIn>
+      <div>
+        <div className="page-header">
+          <div>
+            <h1 className="page-header__title">Manajemen Inventaris</h1>
+            <p className="page-header__desc">Kelola data obat apotek Anda</p>
+          </div>
+          <div className="page-header__actions">
+            <button className="btn btn--primary" onClick={openAdd}>
+              <Plus size={18} /> Tambah Obat
+            </button>
+          </div>
         </div>
-        <div className="page-header__actions">
-          <button className="btn btn--primary" onClick={openAdd}>
-            <Plus size={18} /> Tambah Obat
-          </button>
+
+        {/* Toolbar */}
+        <div className="toolbar">
+          <input
+            type="text"
+            className="form-input form-input--search"
+            placeholder="Cari nama atau kode obat..."
+            style={{ maxWidth: 320 }}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select
+            className="form-select"
+            style={{ maxWidth: 200 }}
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+          >
+            <option value="">Semua Kategori</option>
+            {categories.map((c: any) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
         </div>
-      </div>
 
-      {/* Toolbar */}
-      <div className="toolbar">
-        <input
-          type="text"
-          className="form-input form-input--search"
-          placeholder="Cari nama atau kode obat..."
-          style={{ maxWidth: 320 }}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select
-          className="form-select"
-          style={{ maxWidth: 200 }}
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-        >
-          <option value="">Semua Kategori</option>
-          {categories.map((c: any) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Table */}
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Kode</th>
-              <th>Nama Obat</th>
-              <th>Kategori</th>
-              <th>Unit</th>
-              <th>Harga</th>
-              <th>Stok</th>
-              <th>Min. Stok</th>
-              <th>Status</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i}>
-                  {Array.from({ length: 9 }).map((_, j) => (
-                    <td key={j}><div className="skeleton" style={{ height: 16, width: '80%' }} /></td>
-                  ))}
-                </tr>
-              ))
-            ) : medicines.length === 0 ? (
+        {/* Table */}
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
               <tr>
-                <td colSpan={9}>
-                  <div className="empty-state">
-                    <Package size={40} className="empty-state__icon" />
-                    <p className="empty-state__title">Belum ada data obat</p>
-                    <p className="empty-state__desc">Klik tombol &quot;Tambah Obat&quot; untuk menambahkan</p>
-                  </div>
-                </td>
+                <th>Kode</th>
+                <th>Nama Obat</th>
+                <th>Kategori</th>
+                <th>Unit</th>
+                <th>Harga</th>
+                <th>Stok</th>
+                <th>Min. Stok</th>
+                <th>Status</th>
+                <th>Aksi</th>
               </tr>
-            ) : (
-              medicines.map((med) => (
-                <tr key={med.id}>
-                  <td><code style={{ fontSize: '0.8rem', background: 'var(--surface-3)', padding: '0.15rem 0.4rem', borderRadius: 4 }}>{med.code}</code></td>
-                  <td style={{ fontWeight: 600 }}>{med.name}</td>
-                  <td>{med.category_name || '—'}</td>
-                  <td>{med.unit}</td>
-                  <td>{formatCurrency(Number(med.price_sell))}</td>
-                  <td style={{ fontWeight: 600 }}>{med.stock_total}</td>
-                  <td>{med.stock_min}</td>
-                  <td>{getStockBadge(med.stock_total, med.stock_min)}</td>
-                  <td>
-                    <div className="table__actions">
-                      <button className="btn btn--ghost btn--icon" onClick={() => openEdit(med)} title="Edit">
-                        <Pencil size={16} />
-                      </button>
-                      <button className="btn btn--ghost btn--icon" onClick={() => handleDelete(med.id, med.name)} title="Hapus"
-                        style={{ color: 'var(--danger)' }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {(() => {
+                if (loading) {
+                  return Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      {Array.from({ length: 9 }).map((_, j) => (
+                        <td key={j}><div className="skeleton" style={{ height: 16, width: '80%' }} /></td>
+                      ))}
+                    </tr>
+                  ))
+                }
+                if (medicines.length === 0) {
+                  return (
+                    <tr>
+                      <td colSpan={9}>
+                        <div className="empty-state">
+                          <Package size={40} className="empty-state__icon" />
+                          <p className="empty-state__title">Belum ada data obat</p>
+                          <p className="empty-state__desc">Klik tombol &quot;Tambah Obat&quot; untuk menambahkan</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                }
+                return medicines.map((med, idx) => (
+                  <AnimatedRow key={med.id} index={idx}>
+                    <td><code style={{ fontSize: '0.8rem', background: 'var(--surface-3)', padding: '0.15rem 0.4rem', borderRadius: 4 }}>{med.code}</code></td>
+                    <td style={{ fontWeight: 600 }}>{med.name}</td>
+                    <td>{med.category_name || '—'}</td>
+                    <td>{med.unit}</td>
+                    <td>{formatCurrency(Number(med.price_sell))}</td>
+                    <td style={{ fontWeight: 600 }}>{med.stock_total}</td>
+                    <td>{med.stock_min}</td>
+                    <td>{getStockBadge(med.stock_total, med.stock_min)}</td>
+                    <td>
+                      <div className="table__actions">
+                        <button className="btn btn--ghost btn--icon" onClick={() => openEdit(med)} title="Edit">
+                          <Pencil size={16} />
+                        </button>
+                        <button className="btn btn--ghost btn--icon" onClick={() => handleDelete(med.id, med.name)} title="Hapus"
+                          style={{ color: 'var(--danger)' }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </AnimatedRow>
+                ))
+              })()}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        {/* Modal */}
+        {showModal && (
+          <AnimatedModal onClose={() => setShowModal(false)}>
             <div className="modal__header">
               <h3 className="modal__title">{editItem ? 'Edit Obat' : 'Tambah Obat Baru'}</h3>
               <button className="btn btn--ghost btn--icon" onClick={() => setShowModal(false)}>✕</button>
@@ -265,9 +270,9 @@ export default function InventoryPage() {
                 <button type="submit" className="btn btn--primary">{editItem ? 'Simpan' : 'Tambah'}</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-    </div>
+          </AnimatedModal>
+        )}
+      </div>
+    </FadeIn>
   )
 }

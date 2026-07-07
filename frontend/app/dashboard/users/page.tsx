@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Plus, Pencil, Trash2, UsersIcon } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import { FadeIn, AnimatedRow, AnimatedModal } from '@/components/animations'
 
 export default function UsersPage() {
   const { user } = useAuth()
@@ -11,7 +12,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editItem, setEditItem] = useState<any>(null)
-  
+
   const [form, setForm] = useState({
     name: '', email: '', role: 'apoteker', password: '', is_active: true
   })
@@ -32,12 +33,12 @@ export default function UsersPage() {
 
   const openEdit = (item: any) => {
     setEditItem(item)
-    setForm({ 
-      name: item.name, 
-      email: item.email, 
-      role: item.role, 
-      password: '', // Blank unless they want to change
-      is_active: item.is_active 
+    setForm({
+      name: item.name,
+      email: item.email,
+      role: item.role,
+      password: '',
+      is_active: item.is_active
     })
     setShowModal(true)
   }
@@ -47,18 +48,18 @@ export default function UsersPage() {
     let res
     if (editItem) {
       const updateData = { ...form }
-      if (!updateData.password) delete (updateData as any).password // Do not send empty password
+      if (!updateData.password) delete (updateData as any).password
       res = await api(`/api/auth/users/${editItem.id}`, { method: 'PUT', body: updateData })
     } else {
       if (!form.password) return alert('Password wajib diisi untuk user baru.')
       res = await api('/api/auth/register', { method: 'POST', body: form })
     }
-    
-    if (res.success) { 
+
+    if (res.success) {
       setShowModal(false)
-      loadData() 
-    } else { 
-      alert(res.message) 
+      loadData()
+    } else {
+      alert(res.message)
     }
   }
 
@@ -68,7 +69,7 @@ export default function UsersPage() {
       return
     }
     if (!confirm(`Hapus pengguna "${name}"?`)) return
-    
+
     const res = await api(`/api/auth/users/${id}`, { method: 'DELETE' })
     if (res.success) loadData()
     else alert(res.message)
@@ -84,83 +85,87 @@ export default function UsersPage() {
   }
 
   return (
-    <div>
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Kelola Akses Karyawan</h1>
-          <p className="page-header__desc">Manajemen akun pengguna dan hak akses sistem</p>
+    <FadeIn>
+      <div>
+        <div className="page-header">
+          <div>
+            <h1 className="page-header__title">Kelola Akses Karyawan</h1>
+            <p className="page-header__desc">Manajemen akun pengguna dan hak akses sistem</p>
+          </div>
+          <button className="btn btn--primary" onClick={openAdd}>
+            <Plus size={18} /> Tambah User
+          </button>
         </div>
-        <button className="btn btn--primary" onClick={openAdd}>
-          <Plus size={18} /> Tambah User
-        </button>
-      </div>
 
-      <div className="table-wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Nama Lengkap</th>
-              <th>Email / Username</th>
-              <th>Role (Hak Akses)</th>
-              <th>Status</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <tr key={i}>
-                  {[1, 2, 3, 4, 5].map((j) => (
-                    <td key={j}><div className="skeleton" style={{ height: 16, width: '70%' }} /></td>
-                  ))}
-                </tr>
-              ))
-            ) : users.length === 0 ? (
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
               <tr>
-                <td colSpan={5}>
-                  <div className="empty-state">
-                    <UsersIcon size={40} className="empty-state__icon" />
-                    <p className="empty-state__title">Belum ada user</p>
-                  </div>
-                </td>
+                <th>Nama Lengkap</th>
+                <th>Email / Username</th>
+                <th>Role (Hak Akses)</th>
+                <th>Status</th>
+                <th>Aksi</th>
               </tr>
-            ) : (
-              users.map((u) => (
-                <tr key={u.id}>
-                  <td style={{ fontWeight: 600 }}>{u.name}</td>
-                  <td style={{ color: 'var(--text-secondary)' }}>{u.email}</td>
-                  <td>{getRoleBadge(u.role)}</td>
-                  <td>
-                    {u.is_active ? 
-                      <span className="badge badge--emerald">Aktif</span> : 
-                      <span className="badge badge--rose">Nonaktif</span>
-                    }
-                  </td>
-                  <td>
-                    <div className="table__actions">
-                      <button className="btn btn--ghost btn--icon" onClick={() => openEdit(u)} title="Edit">
-                        <Pencil size={16} />
-                      </button>
-                      <button 
-                        className="btn btn--ghost btn--icon" 
-                        onClick={() => handleDelete(u.id, u.name)} 
-                        title="Hapus"
-                        disabled={String(u.id) === String(user?.id)}
-                        style={{ color: String(u.id) === String(user?.id) ? 'var(--text-tertiary)' : 'var(--danger)' }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {(() => {
+                if (loading) {
+                  return Array.from({ length: 3 }).map((_, i) => (
+                    <tr key={i}>
+                      {[1, 2, 3, 4, 5].map((j) => (
+                        <td key={j}><div className="skeleton" style={{ height: 16, width: '70%' }} /></td>
+                      ))}
+                    </tr>
+                  ))
+                }
+                if (users.length === 0) {
+                  return (
+                    <tr>
+                      <td colSpan={5}>
+                        <div className="empty-state">
+                          <UsersIcon size={40} className="empty-state__icon" />
+                          <p className="empty-state__title">Belum ada user</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                }
+                return users.map((u, idx) => (
+                  <AnimatedRow key={u.id} index={idx}>
+                    <td style={{ fontWeight: 600 }}>{u.name}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{u.email}</td>
+                    <td>{getRoleBadge(u.role)}</td>
+                    <td>
+                      {u.is_active ?
+                        <span className="badge badge--emerald">Aktif</span> :
+                        <span className="badge badge--rose">Nonaktif</span>
+                      }
+                    </td>
+                    <td>
+                      <div className="table__actions">
+                        <button className="btn btn--ghost btn--icon" onClick={() => openEdit(u)} title="Edit">
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          className="btn btn--ghost btn--icon"
+                          onClick={() => handleDelete(u.id, u.name)}
+                          title="Hapus"
+                          disabled={String(u.id) === String(user?.id)}
+                          style={{ color: String(u.id) === String(user?.id) ? 'var(--text-tertiary)' : 'var(--danger)' }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </AnimatedRow>
+                ))
+              })()}
+            </tbody>
+          </table>
+        </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        {showModal && (
+          <AnimatedModal onClose={() => setShowModal(false)}>
             <div className="modal__header">
               <h3 className="modal__title">{editItem ? 'Edit User' : 'Tambah User Baru'}</h3>
               <button className="btn btn--ghost btn--icon" onClick={() => setShowModal(false)}>✕</button>
@@ -199,9 +204,9 @@ export default function UsersPage() {
                 <button type="submit" className="btn btn--primary">{editItem ? 'Simpan' : 'Tambah'}</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-    </div>
+          </AnimatedModal>
+        )}
+      </div>
+    </FadeIn>
   )
 }
