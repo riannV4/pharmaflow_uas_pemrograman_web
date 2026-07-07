@@ -4,7 +4,7 @@
 -- Jalankan file ini di Neon DB untuk mengisi data awal.
 -- Password semua akun: admin123
 -- bcrypt hash (cost 10) untuk "admin123":
---   $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+--   $2b$10$khI456FyVozpI5acIY0AgO8thlB1t6h2cMpYV5UwfOIDhdi9gk2ou
 -- ============================================================
 
 -- ===========================
@@ -14,12 +14,12 @@
 -- Hash yang valid dihasilkan oleh bcryptjs dengan salt 10
 
 INSERT INTO users (name, email, password_hash, role, is_active) VALUES
-  ('Admin Utama',    'admin@pharmaflow.com',    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin',    true),
-  ('Rina Sari',      'apoteker@pharmaflow.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'apoteker', true),
-  ('Budi Santoso',   'kasir@pharmaflow.com',    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'kasir',    true),
-  ('Dewi Lestari',   'dewi@pharmaflow.com',     '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'kasir',    true),
-  ('Ahmad Fauzi',    'ahmad@pharmaflow.com',    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'apoteker', true),
-  ('Siti Nurhaliza', 'siti@pharmaflow.com',     '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'kasir',    true)
+  ('Admin Utama',    'admin@pharmaflow.com',    '$2b$10$khI456FyVozpI5acIY0AgO8thlB1t6h2cMpYV5UwfOIDhdi9gk2ou', 'admin',    true),
+  ('Rina Sari',      'apoteker@pharmaflow.com', '$2b$10$khI456FyVozpI5acIY0AgO8thlB1t6h2cMpYV5UwfOIDhdi9gk2ou', 'apoteker', true),
+  ('Budi Santoso',   'kasir@pharmaflow.com',    '$2b$10$khI456FyVozpI5acIY0AgO8thlB1t6h2cMpYV5UwfOIDhdi9gk2ou', 'kasir',    true),
+  ('Dewi Lestari',   'dewi@pharmaflow.com',     '$2b$10$khI456FyVozpI5acIY0AgO8thlB1t6h2cMpYV5UwfOIDhdi9gk2ou', 'kasir',    true),
+  ('Ahmad Fauzi',    'ahmad@pharmaflow.com',    '$2b$10$khI456FyVozpI5acIY0AgO8thlB1t6h2cMpYV5UwfOIDhdi9gk2ou', 'apoteker', true),
+  ('Siti Nurhaliza', 'siti@pharmaflow.com',     '$2b$10$khI456FyVozpI5acIY0AgO8thlB1t6h2cMpYV5UwfOIDhdi9gk2ou', 'kasir',    true)
 ON CONFLICT (email) DO NOTHING;
 
 -- ===========================
