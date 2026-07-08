@@ -1,10 +1,18 @@
 import { Hono } from 'hono'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import { SignJWT } from 'jose'
 import { sql } from '../db/index.js'
-import { authMiddleware, JWT_SECRET, type JwtPayload } from '../middleware/auth.js'
+import { authMiddleware, type JwtPayload } from '../middleware/auth.js'
 
 const auth = new Hono()
+
+/**
+ * Helper: encode JWT_SECRET ke Uint8Array untuk jose
+ */
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET || '***REMOVED***'
+  return new TextEncoder().encode(secret)
+}
 
 /**
  * POST /api/auth/login
@@ -31,7 +39,7 @@ auth.post('/login', async (c) => {
       return c.json({ success: false, message: 'Email atau password salah.' }, 401)
     }
 
-    // Generate JWT token (8 jam expiry sesuai PRD)
+    // Generate JWT token (8 jam expiry)
     const payload: JwtPayload = {
       userId: String(user.id),
       email: user.email,
@@ -39,7 +47,11 @@ auth.post('/login', async (c) => {
       name: user.name,
     }
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' })
+    const token = await new SignJWT({ ...payload })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('8h')
+      .setIssuedAt()
+      .sign(getJwtSecret())
 
     return c.json({
       success: true,
@@ -85,7 +97,7 @@ auth.post('/register', authMiddleware, async (c) => {
       return c.json({ success: false, message: 'Email sudah terdaftar.' }, 409)
     }
 
-    // Hash password (salt factor 10 sesuai PRD)
+    // Hash password (salt factor 10)
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const result = await sql`
@@ -108,7 +120,7 @@ auth.get('/me', authMiddleware, async (c) => {
   try {
     const user = c.get('user')
     const result = await sql`
-      SELECT id, name, email, role, is_active, created_at 
+      SELECT id, name, email, role, is_active, created_at
       FROM users WHERE id = ${user.userId}
     `
 
@@ -134,7 +146,7 @@ auth.get('/users', authMiddleware, async (c) => {
     }
 
     const result = await sql`
-      SELECT id, name, email, role, is_active, created_at 
+      SELECT id, name, email, role, is_active, created_at
       FROM users ORDER BY created_at DESC
     `
 
@@ -161,7 +173,7 @@ auth.put('/users/:id', authMiddleware, async (c) => {
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10)
       const result = await sql`
-        UPDATE users SET name = ${name}, email = ${email}, role = ${role}, 
+        UPDATE users SET name = ${name}, email = ${email}, role = ${role},
         is_active = ${is_active}, password_hash = ${hashedPassword}, updated_at = NOW()
         WHERE id = ${id}
         RETURNING id, name, email, role, is_active
@@ -169,7 +181,7 @@ auth.put('/users/:id', authMiddleware, async (c) => {
       return c.json({ success: true, data: result[0] })
     } else {
       const result = await sql`
-        UPDATE users SET name = ${name}, email = ${email}, role = ${role}, 
+        UPDATE users SET name = ${name}, email = ${email}, role = ${role},
         is_active = ${is_active}, updated_at = NOW()
         WHERE id = ${id}
         RETURNING id, name, email, role, is_active

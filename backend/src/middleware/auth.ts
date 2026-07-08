@@ -1,10 +1,5 @@
 import type { Context, Next } from 'hono'
-import jwt from 'jsonwebtoken'
-import * as dotenv from 'dotenv'
-
-dotenv.config()
-
-const JWT_SECRET = process.env.JWT_SECRET || '***REMOVED***'
+import { jwtVerify } from 'jose'
 
 export interface JwtPayload {
   userId: string
@@ -13,7 +8,15 @@ export interface JwtPayload {
   name: string
 }
 
-// Extend Hono context to carry user data
+/**
+ * Helper: ambil JWT_SECRET dari env, encode ke Uint8Array (format yang dibutuhkan jose)
+ */
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET || '***REMOVED***'
+  return new TextEncoder().encode(secret)
+}
+
+// Extend Hono context untuk menyimpan data user
 declare module 'hono' {
   interface ContextVariableMap {
     user: JwtPayload
@@ -22,7 +25,7 @@ declare module 'hono' {
 
 /**
  * JWT Authentication Middleware
- * Verifies Bearer token from Authorization header
+ * Memverifikasi Bearer token dari Authorization header menggunakan jose (edge-compatible)
  */
 export const authMiddleware = async (c: Context, next: Next) => {
   const authHeader = c.req.header('Authorization')
@@ -34,8 +37,8 @@ export const authMiddleware = async (c: Context, next: Next) => {
   const token = authHeader.split(' ')[1]
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload
-    c.set('user', decoded)
+    const { payload } = await jwtVerify(token, getJwtSecret())
+    c.set('user', payload as unknown as JwtPayload)
     await next()
   } catch (error) {
     return c.json({ success: false, message: 'Token tidak valid atau sudah kedaluwarsa.' }, 401)
@@ -55,14 +58,12 @@ export const requireRole = (...roles: string[]) => {
     }
 
     if (!roles.includes(user.role)) {
-      return c.json({ 
-        success: false, 
-        message: `Akses ditolak. Hanya role ${roles.join(', ')} yang diizinkan.` 
+      return c.json({
+        success: false,
+        message: `Akses ditolak. Hanya role ${roles.join(', ')} yang diizinkan.`,
       }, 403)
     }
 
     await next()
   }
 }
-
-export { JWT_SECRET }

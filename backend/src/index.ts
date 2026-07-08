@@ -1,7 +1,5 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serve } from '@hono/node-server'
-import * as dotenv from 'dotenv'
 
 // Import routes
 import auth from './routes/auth.js'
@@ -12,23 +10,24 @@ import transactions from './routes/transactions.js'
 import dashboard from './routes/dashboard.js'
 import stockMutations from './routes/stock-mutations.js'
 
-dotenv.config()
-
 const app = new Hono()
 
-// Mengizinkan frontend mengakses API
+// CORS — mengizinkan frontend mengakses API
+// CORS_ORIGIN di-set via wrangler.toml vars atau .dev.vars
 app.use('/*', cors({
-  origin: 'http://localhost:3000',
+  origin: (c) => {
+    return process.env.CORS_ORIGIN || 'http://localhost:3000'
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
 }))
 
 // Health check
 app.get('/', (c) => {
-  return c.json({ 
-    message: 'PharmaFlow API Server', 
+  return c.json({
+    message: 'PharmaFlow API Server',
     version: '1.0.0',
-    status: 'running' 
+    status: 'running',
   })
 })
 
@@ -41,10 +40,9 @@ app.route('/api/transactions', transactions)
 app.route('/api/dashboard', dashboard)
 app.route('/api/stock-mutations', stockMutations)
 
-const port = Number(process.env.PORT) || 3001
-console.log(`🏥 PharmaFlow API Server running on http://localhost:${port}`)
-
-serve({
-  fetch: app.fetch,
-  port
-})
+// ─────────────────────────────────────────────
+// Cloudflare Workers entry point
+// Ekspor default app — Wrangler akan menangani sisanya
+// Tidak perlu `serve()` seperti di Node.js
+// ─────────────────────────────────────────────
+export default app

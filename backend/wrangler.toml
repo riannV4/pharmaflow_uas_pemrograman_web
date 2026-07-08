@@ -1,0 +1,15 @@
+name = "pharmaflow-api"
+main = "src/index.ts"
+compatibility_date = "2025-07-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+preview_urls = false
+
+# ===== Environment Variables =====
+[vars]
+CORS_ORIGIN = "https://pharmaflow-uas-pemrograman.vercel.app"
+JWT_SECRET = "***REMOVED***"
+
+# ===== Secrets (jangan di-commit) =====
+# DATABASE_URL di-set via `npx wrangler secret put DATABASE_URL`
+# atau via dashboard Cloudflare
