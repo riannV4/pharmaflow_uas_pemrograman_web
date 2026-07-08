@@ -7,7 +7,7 @@ preview_urls = false
 
 # ===== Environment Variables =====
 [vars]
-CORS_ORIGIN = "https://pharmaflow-uas-pemrograman.vercel.app"
+CORS_ORIGIN = "*"
 JWT_SECRET = "***REMOVED***"
 
 # ===== Secrets (jangan di-commit) =====

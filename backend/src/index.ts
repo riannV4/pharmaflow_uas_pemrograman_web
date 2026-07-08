@@ -14,9 +14,14 @@ const app = new Hono()
 
 // CORS — mengizinkan frontend mengakses API
 // CORS_ORIGIN di-set via wrangler.toml vars atau .dev.vars
+// Gunakan "*" untuk allow semua origin, atau domain spesifik
 app.use('/*', cors({
-  origin: (c) => {
-    return process.env.CORS_ORIGIN || 'http://localhost:3000'
+  origin: (origin) => {
+    const corsOrigin = process.env.CORS_ORIGIN
+    if (corsOrigin === '*') {
+      return origin || '*'
+    }
+    return corsOrigin || 'http://localhost:3000'
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
