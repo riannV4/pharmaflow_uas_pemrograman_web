@@ -8,7 +8,7 @@ preview_urls = false
 # ===== Environment Variables =====
 [vars]
 CORS_ORIGIN = "*"
-JWT_SECRET = "***REMOVED***"
+# JWT_SECRET: set via `npx wrangler secret put JWT_SECRET`
 
 # ===== Secrets (jangan di-commit) =====
 # DATABASE_URL di-set via `npx wrangler secret put DATABASE_URL`

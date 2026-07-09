@@ -10,9 +10,13 @@ export interface JwtPayload {
 
 /**
  * Helper: ambil JWT_SECRET dari env, encode ke Uint8Array (format yang dibutuhkan jose)
+ * Wajib di-set via `npx wrangler secret put JWT_SECRET` — tidak ada fallback demi keamanan.
  */
 function getJwtSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET || '***REMOVED***'
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('JWT_SECRET tidak di-set. Jalankan: npx wrangler secret put JWT_SECRET')
+  }
   return new TextEncoder().encode(secret)
 }
 
