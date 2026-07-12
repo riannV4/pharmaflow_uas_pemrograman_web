@@ -37,7 +37,7 @@ export function InfiniteMarquee({
         animate={{ x: scrollDistance * totalItems }}
         transition={{
           duration: speed,
-          ease: 'linear',
+          ease: 'linear' as const,
           repeat: Infinity,
           repeatType: 'loop',
           repeatDelay: 0,
