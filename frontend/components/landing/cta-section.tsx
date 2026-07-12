@@ -8,7 +8,7 @@ export function CTASection() {
   return (
     <section
       style={{
-        padding: '5rem 2rem',
+        padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 3vw, 2rem)',
         background: 'linear-gradient(135deg, #064e3b, #0d9488)',
         textAlign: 'center',
       }}
@@ -18,7 +18,7 @@ export function CTASection() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        style={{ maxWidth: 700, margin: '0 auto' }}
+        style={{ maxWidth: 700, margin: '0 auto', padding: '0 1rem' }}
       >
         <motion.div
           animate={{ y: [0, -10, 0] }}
@@ -30,7 +30,7 @@ export function CTASection() {
 
         <h2
           style={{
-            fontSize: '2rem',
+            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
             fontWeight: 800,
             color: 'white',
             letterSpacing: '-0.025em',
@@ -43,7 +43,7 @@ export function CTASection() {
 
         <p
           style={{
-            fontSize: '1.1rem',
+            fontSize: 'clamp(0.95rem, 2.2vw, 1.1rem)',
             color: 'rgba(255,255,255,0.8)',
             marginBottom: '2rem',
             lineHeight: 1.7,
@@ -63,11 +63,11 @@ export function CTASection() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              padding: '1rem 2.5rem',
+              padding: 'clamp(0.85rem, 2vw, 1rem) clamp(1.75rem, 4vw, 2.5rem)',
               background: 'white',
               color: '#064e3b',
               borderRadius: 12,
-              fontSize: '1.1rem',
+              fontSize: 'clamp(0.95rem, 2.2vw, 1.1rem)',
               fontWeight: 700,
               textDecoration: 'none',
               boxShadow: '0 10px 30px rgba(0,0,0,0.2)',

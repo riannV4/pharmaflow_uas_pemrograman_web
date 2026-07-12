@@ -40,8 +40,8 @@ export function TechMarqueeSection() {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.75rem',
-          padding: '0.75rem 1.5rem',
+          gap: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+          padding: 'clamp(0.6rem, 1.5vw, 0.75rem) clamp(1rem, 2.5vw, 1.5rem)',
           borderRadius: 12,
           border: '1px solid #e2e8f0',
           background: 'white',
@@ -49,12 +49,12 @@ export function TechMarqueeSection() {
           whiteSpace: 'nowrap',
         }}
       >
-        <IconComponent size={24} color={tech.color} />
+        <IconComponent size={20} color={tech.color} />
         <span
           style={{
             fontWeight: 600,
             color: '#0f172a',
-            fontSize: '0.9rem',
+            fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
             fontFamily: 'var(--font-sans)',
           }}
         >
@@ -65,11 +65,11 @@ export function TechMarqueeSection() {
   })
 
   return (
-    <section style={{ padding: '2rem 0' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+    <section style={{ padding: 'clamp(1.5rem, 3vw, 2rem) clamp(0.5rem, 2vw, 1rem)' }}>
+      <div style={{ textAlign: 'center', marginBottom: 'clamp(1.5rem, 3vw, 2rem)', padding: '0 1rem' }}>
         <h3
           style={{
-            fontSize: '1.1rem',
+            fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
             fontWeight: 600,
             color: '#64748b',
             letterSpacing: '0.1em',

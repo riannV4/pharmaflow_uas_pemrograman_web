@@ -135,7 +135,13 @@ export function HeroSection() {
         {/* CTA Buttons */}
         <motion.div
           variants={itemVariants}
-          style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}
+          style={{ 
+            display: 'flex', 
+            gap: 'clamp(0.75rem, 2vw, 1rem)', 
+            justifyContent: 'center', 
+            flexWrap: 'wrap',
+            padding: '0 1rem',
+          }}
         >
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -144,11 +150,11 @@ export function HeroSection() {
             <Link
               href="/login"
               style={{
-                padding: '1rem 2rem',
+                padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1.25rem, 3vw, 2rem)',
                 background: 'white',
                 color: '#064e3b',
                 borderRadius: 12,
-                fontSize: '1rem',
+                fontSize: 'clamp(0.875rem, 2vw, 1rem)',
                 fontWeight: 700,
                 textDecoration: 'none',
                 display: 'flex',
@@ -156,6 +162,7 @@ export function HeroSection() {
                 gap: '0.5rem',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
                 transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
               }}
             >
               Mulai Sekarang
@@ -167,16 +174,17 @@ export function HeroSection() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{
-              padding: '1rem 2rem',
+              padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1.25rem, 3vw, 2rem)',
               background: 'rgba(255,255,255,0.1)',
               color: 'white',
               borderRadius: 12,
-              fontSize: '1rem',
+              fontSize: 'clamp(0.875rem, 2vw, 1rem)',
               fontWeight: 600,
               textDecoration: 'none',
               border: '1px solid rgba(255,255,255,0.2)',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
           >
             Pelajari Fitur
@@ -188,10 +196,10 @@ export function HeroSection() {
           variants={itemVariants}
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '2rem',
-            marginTop: '4rem',
-            padding: '2rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+            gap: 'clamp(1rem, 3vw, 2rem)',
+            marginTop: 'clamp(2rem, 4vw, 4rem)',
+            padding: 'clamp(1rem, 3vw, 2rem)',
             background: 'rgba(255,255,255,0.1)',
             borderRadius: 16,
             border: '1px solid rgba(255,255,255,0.15)',
@@ -207,10 +215,10 @@ export function HeroSection() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#a7f3d0' }}>
+              <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 800, color: '#a7f3d0' }}>
                 {stat.value}
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+              <div style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.85rem)', color: 'rgba(255,255,255,0.7)' }}>
                 {stat.label}
               </div>
             </motion.div>

@@ -74,7 +74,7 @@ export function FeaturesSection() {
     <section
       id="features"
       style={{
-        padding: '5rem 2rem',
+        padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 3vw, 2rem)',
         background: 'white',
       }}
     >
@@ -84,11 +84,11 @@ export function FeaturesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: '3rem' }}
+          style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}
         >
           <h2
             style={{
-              fontSize: '2rem',
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
               fontWeight: 800,
               color: '#0f172a',
               letterSpacing: '-0.025em',
@@ -98,7 +98,13 @@ export function FeaturesSection() {
           >
             Fitur Unggulan
           </h2>
-          <p style={{ fontSize: '1.05rem', color: '#64748b', maxWidth: 600, margin: '0 auto' }}>
+          <p style={{ 
+            fontSize: 'clamp(0.9rem, 2vw, 1.05rem)', 
+            color: '#64748b', 
+            maxWidth: 600, 
+            margin: '0 auto',
+            padding: '0 1rem',
+          }}>
             Solusi lengkap untuk mengelola apotek Anda dengan efisien dan akurat
           </p>
         </motion.div>
@@ -110,8 +116,8 @@ export function FeaturesSection() {
           viewport={{ once: true }}
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: '1.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 'clamp(1rem, 2vw, 1.5rem)',
           }}
         >
           {FEATURES.map((feature, i) => (
@@ -120,7 +126,7 @@ export function FeaturesSection() {
               variants={itemVariants}
               whileHover={{ y: -8 }}
               style={{
-                padding: '1.75rem',
+                padding: 'clamp(1.25rem, 2.5vw, 1.75rem)',
                 borderRadius: 16,
                 border: '1px solid #e2e8f0',
                 background: '#f8fafc',
@@ -145,7 +151,7 @@ export function FeaturesSection() {
               </motion.div>
               <h3
                 style={{
-                  fontSize: '1.1rem',
+                  fontSize: 'clamp(1rem, 2vw, 1.1rem)',
                   fontWeight: 700,
                   color: '#0f172a',
                   marginBottom: '0.5rem',
@@ -154,7 +160,11 @@ export function FeaturesSection() {
               >
                 {feature.title}
               </h3>
-              <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6 }}>
+              <p style={{ 
+                fontSize: 'clamp(0.85rem, 1.8vw, 0.9rem)', 
+                color: '#64748b', 
+                lineHeight: 1.6 
+              }}>
                 {feature.desc}
               </p>
             </motion.div>
