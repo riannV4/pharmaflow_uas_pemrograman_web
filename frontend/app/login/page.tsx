@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useState, FormEvent } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { Cross } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { AlertCircle, Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -29,27 +31,88 @@ export default function LoginPage() {
     setIsSubmitting(false)
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: 'easeOut' as const },
+    },
+  }
+
   return (
     <div className="login-page">
-      <div className="login-card">
-        <div className="login-card__logo">
-          <div className="login-card__logo-icon">
-            <Cross size={28} />
-          </div>
-          <h1>PharmaFlow</h1>
-        </div>
-        <p className="login-card__subtitle">
+      <motion.div
+        className="login-card"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' as const }}
+      >
+        <motion.div
+          className="login-card__logo"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div
+            className="login-card__logo-icon"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            <Image
+              src="/pharmaflow_logo.svg"
+              alt="PharmaFlow Logo"
+              width={32}
+              height={32}
+              priority
+            />
+          </motion.div>
+          <motion.h1 variants={itemVariants} style={{ margin: 0 }}>
+            PharmaFlow
+          </motion.h1>
+        </motion.div>
+
+        <motion.p
+          className="login-card__subtitle"
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+        >
           Masuk ke dashboard apotek Anda
-        </p>
+        </motion.p>
 
         {error && (
-          <div className="login-card__error">{error}</div>
+          <motion.div
+            className="login-card__error"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <AlertCircle size={16} style={{ marginRight: '0.5rem' }} />
+            {error}
+          </motion.div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div>
+        <motion.form
+          onSubmit={handleSubmit}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={itemVariants}>
             <label htmlFor="email">Email</label>
-            <input
+            <motion.input
               id="email"
               type="email"
               className="login-card__input"
@@ -58,12 +121,14 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              whileFocus={{ scale: 1.01 }}
+              transition={{ type: 'spring', stiffness: 300 }}
             />
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div variants={itemVariants}>
             <label htmlFor="password">Password</label>
-            <input
+            <motion.input
               id="password"
               type="password"
               className="login-card__input"
@@ -72,29 +137,56 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
+              whileFocus={{ scale: 1.01 }}
+              transition={{ type: 'spring', stiffness: 300 }}
             />
-          </div>
+          </motion.div>
 
-          <button
+          <motion.button
             type="submit"
             className="login-card__btn"
             disabled={isSubmitting}
+            variants={itemVariants}
+            whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+            whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
           >
             {isSubmitting ? (
               <>
-                <span className="spinner" style={{ width: 18, height: 18 }} />
+                <Loader2
+                  size={18}
+                  style={{
+                    marginRight: '0.5rem',
+                    animation: 'spin 1s linear infinite',
+                  }}
+                />
                 Memproses...
               </>
             ) : (
               'Masuk ke Dashboard'
             )}
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
 
-        <div className="login-card__footer">
+        <motion.div
+          className="login-card__footer"
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+        >
           PharmaFlow v1.0 &copy; 2026 — Pharmacy Inventory & POS
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
+
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   )
 }
