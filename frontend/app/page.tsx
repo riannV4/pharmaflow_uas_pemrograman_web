@@ -3,34 +3,34 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { Navigation } from '@/components/landing/navigation'
+import { HeroSection } from '@/components/landing/hero-section'
+import { FeaturesSection } from '@/components/landing/features-section'
+import { TechMarqueeSection } from '@/components/landing/tech-marquee-section'
+import { RolesSection } from '@/components/landing/roles-section'
+import { CTASection } from '@/components/landing/cta-section'
+import { Footer } from '@/components/landing/footer'
 
-export default function Home() {
-  const { user, isLoading } = useAuth()
+export default function LandingPage() {
   const router = useRouter()
+  const { user } = useAuth()
 
+  // Redirect ke dashboard jika sudah login
   useEffect(() => {
-    if (!isLoading) {
-      if (user) {
-        // Redirect based on role
-        if (user.role === 'kasir') {
-          router.push('/dashboard/pos')
-        } else {
-          router.push('/dashboard')
-        }
-      } else {
-        router.push('/login')
-      }
+    if (user) {
+      router.replace('/dashboard')
     }
-  }, [user, isLoading, router])
+  }, [user, router])
 
   return (
-    <div className="login-page">
-      <div className="login-card" style={{ textAlign: 'center' }}>
-        <div className="spinner" style={{ margin: '0 auto' }} />
-        <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: '1rem', fontSize: '0.9rem' }}>
-          Memuat PharmaFlow...
-        </p>
-      </div>
+    <div style={{ minHeight: '100vh', background: '#f0fdf4' }}>
+      <Navigation />
+      <HeroSection />
+      <FeaturesSection />
+      <TechMarqueeSection />
+      <RolesSection />
+      <CTASection />
+      <Footer />
     </div>
   )
 }
