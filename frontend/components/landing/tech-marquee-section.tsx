@@ -65,7 +65,7 @@ export function TechMarqueeSection() {
   })
 
   return (
-    <section style={{ paddingY: '2rem' }}>
+    <section style={{ padding: '2rem 0' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <h3
           style={{
