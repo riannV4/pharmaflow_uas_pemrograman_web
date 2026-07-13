@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api, formatCurrency } from '@/lib/api'
 import { Plus, Pencil, Trash2, Package } from 'lucide-react'
-import { AnimatedRow, AnimatedModal } from '@/components/animations'
+import { AnimatedRow, AnimatedModal, SlideUp } from '@/components/animations'
 
 export default function InventoryPage() {
   const [medicines, setMedicines] = useState<any[]>([])
@@ -102,6 +102,7 @@ export default function InventoryPage() {
   }
 
   return (
+    <SlideUp>
       <div>
         <div className="page-header">
           <div>
@@ -272,5 +273,6 @@ export default function InventoryPage() {
           </AnimatedModal>
         )}
       </div>
+    </SlideUp>
   )
 }

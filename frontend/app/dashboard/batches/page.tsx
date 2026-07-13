@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api, formatDate } from '@/lib/api'
 import { Plus, Layers } from 'lucide-react'
-import { AnimatedRow, AnimatedModal } from '@/components/animations'
+import { AnimatedRow, AnimatedModal, SlideUp } from '@/components/animations'
 
 export default function BatchesPage() {
   const [batches, setBatches] = useState<any[]>([])
@@ -66,6 +66,7 @@ export default function BatchesPage() {
   }
 
   return (
+    <SlideUp>
       <div>
         <div className="page-header">
           <div>
@@ -210,5 +211,6 @@ export default function BatchesPage() {
           </AnimatedModal>
         )}
       </div>
+    </SlideUp>
   )
 }

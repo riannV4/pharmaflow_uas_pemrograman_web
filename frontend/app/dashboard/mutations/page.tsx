@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api, formatDateTime } from '@/lib/api'
 import { ArrowLeftRight } from 'lucide-react'
-import { AnimatedRow } from '@/components/animations'
+import { AnimatedRow, SlideUp } from '@/components/animations'
 
 export default function MutationsPage() {
   const [mutations, setMutations] = useState<any[]>([])
@@ -52,6 +52,7 @@ export default function MutationsPage() {
   }
 
   return (
+    <SlideUp>
       <div>
         <div className="page-header">
           <div>
@@ -143,5 +144,6 @@ export default function MutationsPage() {
           </table>
         </div>
       </div>
+    </SlideUp>
   )
 }
