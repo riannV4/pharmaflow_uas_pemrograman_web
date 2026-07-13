@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { login } = useAuth()
+  const { login, getDefaultRoute } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: FormEvent) => {
@@ -23,7 +23,7 @@ export default function LoginPage() {
     const result = await login(email, password)
 
     if (result.success) {
-      router.push('/dashboard')
+      router.push(getDefaultRoute())
     } else {
       setError(result.message || 'Login gagal. Periksa email dan password.')
     }

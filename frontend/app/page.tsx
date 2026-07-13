@@ -13,14 +13,14 @@ import { Footer } from '@/components/landing/footer'
 
 export default function LandingPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, getDefaultRoute } = useAuth()
 
-  // Redirect ke dashboard jika sudah login
+  // Redirect ke halaman default berdasarkan role jika sudah login
   useEffect(() => {
     if (user) {
-      router.replace('/dashboard')
+      router.replace(getDefaultRoute())
     }
-  }, [user, router])
+  }, [user, router, getDefaultRoute])
 
   return (
     <div style={{ minHeight: '100vh', background: '#f0fdf4' }}>

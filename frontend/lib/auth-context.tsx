@@ -16,6 +16,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
   logout: () => void
+  getDefaultRoute: () => string
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -62,8 +63,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('pharmaflow_user')
   }, [])
 
+  const getDefaultRoute = useCallback(() => {
+    if (!user) return '/login'
+    switch (user.role) {
+      case 'admin':
+        return '/dashboard'
+      case 'apoteker':
+        return '/dashboard/inventory'
+      case 'kasir':
+        return '/dashboard/pos'
+      default:
+        return '/dashboard'
+    }
+  }, [user])
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, getDefaultRoute }}>
       {children}
     </AuthContext.Provider>
   )
@@ -76,3 +91,5 @@ export function useAuth() {
   }
   return context
 }
+
+export type AuthContextTypeWithDefaultRoute = AuthContextType & { getDefaultRoute: () => string }

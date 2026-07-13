@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Sidebar from '@/components/sidebar'
 import Header from '@/components/header'
@@ -13,15 +13,21 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, getDefaultRoute } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login')
+    } else if (!isLoading && user && pathname === '/dashboard') {
+      const defaultRoute = getDefaultRoute()
+      if (defaultRoute !== '/dashboard') {
+        router.replace(defaultRoute)
+      }
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router, pathname, getDefaultRoute])
 
   if (isLoading) {
     return (
