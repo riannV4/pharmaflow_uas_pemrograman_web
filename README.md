@@ -9,12 +9,14 @@ Aplikasi **Sistem Informasi Apotek (SIA)** berbasis SaaS untuk manajemen inventa
 | Layer | Teknologi |
 |-------|-----------|
 | **Frontend** | Next.js 16 (App Router), React 19, TypeScript |
-| **Backend** | Hono Framework 4, Node.js, TypeScript |
+| **Backend** | Hono Framework 4, Cloudflare Workers, Wrangler CLI, TypeScript |
 | **Database** | Neon DB (Serverless PostgreSQL) |
-| **Autentikasi** | JWT (jsonwebtoken) + bcryptjs |
+| **Autentikasi** | JWT (jose) + bcryptjs |
 | **Styling** | Tailwind CSS v4 + Custom Design System (CSS Variables) |
 | **Icons** | Lucide React |
 | **Charts** | Recharts (Bar Chart, Pie/Donut Chart) |
+| **Backend Runtime** | Cloudflare Workers (Edge Runtime) |
+| **Backend CLI** | Wrangler v4 |
 | **Animasi** | Framer Motion 12 (page transitions, stagger, modal, counter) |
 
 ---
@@ -62,7 +64,10 @@ Aplikasi **Sistem Informasi Apotek (SIA)** berbasis SaaS untuk manajemen inventa
 | **Kasir** (Staf Penjualan) | POS (Kasir), Mutasi Stok |
 
 - Sidebar navigasi menyesuaikan otomatis berdasarkan role
-- Redirect otomatis: role `kasir` langsung ke halaman POS saat login
+- Redirect otomatis berdasarkan role saat login:
+  - **Admin** → `/dashboard`
+  - **Apoteker** → `/dashboard/inventory`
+  - **Kasir** → `/dashboard/pos`
 - Proteksi: tidak bisa menghapus akun sendiri
 
 ---
@@ -73,11 +78,11 @@ Aplikasi **Sistem Informasi Apotek (SIA)** berbasis SaaS untuk manajemen inventa
 pharmaflow_saas/
 ├── backend/
 │   ├── src/
-│   │   ├── index.ts                    # Entrypoint Hono (CORS, routes, server)
+│   │   ├── index.ts                    # Entrypoint Hono (CORS, routes, Cloudflare Workers)
 │   │   ├── middleware/
-│   │   │   └── auth.ts                 # JWT verify + RBAC guard
+│   │   │   └── auth.ts                 # JWT verify + RBAC guard (jose)
 │   │   ├── db/
-│   │   │   ├── index.ts                # Koneksi Neon DB (neon serverless)
+│   │   │   ├── index.ts                # Koneksi Neon DB (@neondatabase/serverless)
 │   │   │   ├── schema.sql              # DDL: 7 tabel + indexes
 │   │   │   ├── seed.sql                # Data demo: users, kategori, obat, batch, transaksi
 │   │   │   ├── migrate.ts              # Script migrasi schema ke DB
@@ -92,7 +97,9 @@ pharmaflow_saas/
 │   │       ├── transactions.ts         # Transaksi POS + FEFO allocation
 │   │       ├── dashboard.ts            # Summary, revenue, top medicines, alerts
 │   │       └── stock-mutations.ts      # Log mutasi stok
-│   ├── .env                            # DATABASE_URL + JWT_SECRET
+│   ├── wrangler.toml                   # Konfigurasi Cloudflare Workers
+│   ├── .dev.vars                       # Environment variables lokal
+│   ├── .env                            # Environment variables (gitignored)
 │   └── package.json
 │
 ├── frontend/
@@ -165,21 +172,21 @@ cd pharmaflow_saas
    cd backend
    npm install
    ```
-2. Buat file `.env`:
+2. Buat file `.dev.vars` untuk environment variables lokal:
    ```env
    DATABASE_URL=postgresql://neondb_owner:...@ep-damp-recipe-...neon.tech/neondb?sslmode=require
    JWT_SECRET=super_secret_key_pharmaflow_2026
-   PORT=3001
+   CORS_ORIGIN=*
    ```
 3. Jalankan migrasi database (opsional — untuk membuat tabel):
    ```bash
    npx tsx src/db/migrate.ts
    ```
-4. Jalankan server backend:
+4. Jalankan server backend dengan Wrangler:
    ```bash
    npm run dev
    ```
-   Server berjalan di `http://localhost:3001`.
+   Server berjalan di `http://localhost:8787` (Cloudflare Workers default port).
 
 ### Langkah 3: Setup Frontend
 1. Buka terminal baru, masuk ke direktori frontend:
@@ -189,7 +196,7 @@ cd pharmaflow_saas
    ```
 2. (Opsional) Buat `.env.local` jika endpoint backend berbeda:
    ```env
-   NEXT_PUBLIC_API_URL=http://localhost:3001
+   NEXT_PUBLIC_API_URL=http://localhost:8787
    ```
 3. Jalankan server frontend:
    ```bash
